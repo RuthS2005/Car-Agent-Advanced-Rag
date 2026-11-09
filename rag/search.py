@@ -51,11 +51,11 @@ def rrf(rankings: list[list[int]], k: int = 60) -> list[int]:
 
 
 def is_current(chunk: Chunk) -> bool:
-    """TODO (step 4): False for chunks from documents that were replaced by a newer version.
+    """Return whether a chunk's document has not been superseded.
 
-    Look at the metadata of the documents in data/ and decide which field tells you that.
+    The document metadata marks replaced documents with ``status: superseded``.
     """
-    raise NotImplementedError("step 4: write is_current")
+    return chunk.meta.get("status") != "superseded"
 
 
 def search(index: Index, query: str, mode: str = "vector", top_k: int = 5,
