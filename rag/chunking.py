@@ -26,7 +26,7 @@ def chunk_fixed(doc: Doc, size: int = 350, overlap: int = 50) -> list[Chunk]:
 
 
 def chunk_by_headings(doc: Doc) -> list[Chunk]:
-    """TODO (step 2): one chunk per "## " section.
+    """Split a document into one chunk per "## " section.
 
     - Every chunk starts with a heading path line: "<document title> › <section heading>".
       The text before the first "## " goes in a chunk whose path line is just the title.
@@ -35,4 +35,27 @@ def chunk_by_headings(doc: Doc) -> list[Chunk]:
     - Copy the document metadata and add meta["section"] = the section heading.
     - Ids: f"{doc.id}#{n}", numbered from 0.
     """
-    raise NotImplementedError("step 2: write chunk_by_headings")
+    chunks = []
+    section = ""
+    content = []
+
+    def add_chunk() -> None:
+        body = "\n".join(line for line in content if not line.startswith("# ")).strip()
+        if not body and not section:
+            return
+
+        path = f"{doc.title} › {section}" if section else doc.title
+        text = f"{path}\n{body}" if body else path
+        meta = dict(doc.meta)
+        meta["section"] = section
+        chunks.append(Chunk(f"{doc.id}#{len(chunks)}", doc.id, text, meta))
+
+    for line in doc.text.splitlines():
+        if line.startswith("## "):
+            add_chunk()
+            section = line[3:].strip()
+            content = []
+        else:
+            content.append(line)
+    add_chunk()
+    return chunks
