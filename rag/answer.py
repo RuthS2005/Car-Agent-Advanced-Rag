@@ -43,10 +43,17 @@ def ask(question: str, chunks: list[Chunk], client=None) -> tuple[Answer, object
 
 
 def verify_citations(answer: Answer, chunks: list[Chunk]) -> list[Citation]:
-    """TODO (step 5): return the citations that are NOT backed by the chunks.
+    """Return citations that are not backed by the supplied chunks.
 
     A citation is bad if its chunk_id is not one of the chunks we sent,
-    or if its quote does not appear in that chunk's text.
+    or if its quote does not appear in that chunk's text. Whitespace
+    differences, including line breaks, are ignored.
     An empty list means every citation checks out.
     """
-    raise NotImplementedError("step 5: write verify_citations")
+    chunks_by_id = {chunk.id: chunk for chunk in chunks}
+    invalid = []
+    for citation in answer.citations:
+        chunk = chunks_by_id.get(citation.chunk_id)
+        if chunk is None or " ".join(citation.quote.split()) not in " ".join(chunk.text.split()):
+            invalid.append(citation)
+    return invalid
