@@ -33,13 +33,21 @@ class Index:
 
 
 def rrf(rankings: list[list[int]], k: int = 60) -> list[int]:
-    """TODO (step 3): Reciprocal Rank Fusion.
+    """Combine ranked lists using Reciprocal Rank Fusion.
 
     `rankings` is a list of ranked lists of chunk indexes, best first.
     A chunk gets 1 / (k + rank) from every list it appears in (rank starts at 1),
     and the scores are summed. Return all chunk indexes, sorted by score, best first.
     """
-    raise NotImplementedError("step 3: write rrf")
+    scores = {}
+    for ranking in rankings:
+        seen = set()
+        for rank, chunk_index in enumerate(ranking, start=1):
+            if chunk_index in seen:
+                continue
+            seen.add(chunk_index)
+            scores[chunk_index] = scores.get(chunk_index, 0.0) + 1 / (k + rank)
+    return sorted(scores, key=scores.get, reverse=True)
 
 
 def is_current(chunk: Chunk) -> bool:
